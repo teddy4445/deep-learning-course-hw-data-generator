@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   Deep Learning Poses dataset - Teddy Lazebnik
+  </title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="Online abstratic human poses generator page by Teddy Lazebnik for DL CNN and RNN tasks" name="description"/>
+  <meta content="Teddy Lazebnik" name="author"/>
+  <meta content="keywords" content="lazebnik, לזנבניק, teddy lazebnik" />
+  <link href="/img/favicon.ico" rel="icon" type="image/x-icon"/>
+  <!-- css -->
+  <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" rel="stylesheet"/>
+  <link href="/css/teddy_style.css" rel="stylesheet"/>
+  <script type="application/ld+json">
+   {
+		  "@context": "https://schema.org",
+		  "@type": "Course",
+		  "name": "Deep Learning for Computer Vision",
+		  "description": "An introduction to deep learning, focusing on computer vision tasks",
+		  "provider": {
+			"@type": "Organization",
+			"name": "HIT"
+		  }
+		}
+  </script>
+  <!-- P5 library -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.js">
+  </script>
+ </head>
+ <body>
+  <div class="row">
+   <div class="col-lg-12 col-md-12 col-sm-12 mobile-space">
+ 
+    <div class="body">
+     <div class="fluid-container">
+      <div class="row">
+       <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="info" style="text-align: center;">
+         <h3>
+          Random Images of Poses
+         </h3>
+         <p>
+          This is a poses generator - not perfect yet...
+         </p>
+         <div id="canvas_container">
+         </div>
+         <p>
+          Allow multiple file download before using and make sure you download to an empty folder and not the Computer's desktop.
+         </p>
+         <button alt="Download Train Set" class="btn btn-primary" onclick="downloadTrainSet();">
+          Download Train Set (250 samples)
+         </button>
+         <button alt="Download Test Set" class="btn btn-primary" onclick="downloadTestSet();">
+          Download Test Set (25 samples)
+         </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>
+<!-- Random image generator -->
+<script>
+ let pose; // declare pose object
+	
+	// general shape type
+	class Pose 
+	{
+		constructor() 
+		{
+			this.centerOfMass = [width/2 + 50, height/2];
+			
+			var shiftPoint = DotInFixDistance(width/10, 160, 200);
+			this.chest = [this.centerOfMass[0] + shiftPoint[0], this.centerOfMass[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/12, 160, 200);
+			this.head = [this.chest[0] + shiftPoint[0], this.chest[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/12, 100, 130);
+			this.sholderLeft = [this.chest[0] + shiftPoint[0], this.chest[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/12, -100, -130);
+			this.sholderRight = [this.chest[0] + shiftPoint[0], this.chest[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/12, 0, 220);
+			this.elbowLeft = [this.sholderLeft[0] + shiftPoint[0], this.sholderLeft[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/12, 0, -220);
+			this.elbowRight = [this.sholderRight[0] + shiftPoint[0], this.sholderRight[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/12, 0, 220);
+			this.handLeft = [this.elbowLeft[0] + shiftPoint[0], this.elbowLeft[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/12, 0, -220);
+			this.handRight = [this.elbowRight[0] + shiftPoint[0], this.elbowRight[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/14, -10, -10);
+			this.b = [this.centerOfMass[0] + shiftPoint[0], this.centerOfMass[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/8, 5, 45);
+			this.kneeLeft = [this.b[0] + shiftPoint[0], this.b[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/8, -45, -5);
+			this.kneeRight = [this.b[0] + shiftPoint[0], this.b[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/8, -20, 20);
+			this.legLeft = [this.kneeLeft[0] + shiftPoint[0], this.kneeLeft[1] + shiftPoint[1]];
+			
+			shiftPoint = DotInFixDistance(width/8, -20, 20);
+			this.legRight = [this.kneeRight[0] + shiftPoint[0], this.kneeLeft[1] + shiftPoint[1]];
+			
+		}
+
+		display() 
+		{
+			var print_r = 15;
+			
+			// draw lines 
+			fill(0);
+			stroke('black'); 
+			strokeWeight(3);
+			line(this.centerOfMass[0], this.centerOfMass[1], this.chest[0], this.chest[1]);
+			
+			line(this.chest[0], this.chest[1], this.head[0], this.head[1]);
+			
+			line(this.chest[0], this.chest[1], this.sholderLeft[0], this.sholderLeft[1]);
+			
+			line(this.chest[0], this.chest[1], this.sholderRight[0], this.sholderRight[1]);
+			
+			line(this.sholderRight[0], this.sholderRight[1], this.elbowRight[0], this.elbowRight[1]);
+			
+			line(this.elbowRight[0], this.elbowRight[1], this.handRight[0], this.handRight[1]);
+			
+			line(this.sholderLeft[0], this.sholderLeft[1], this.elbowLeft[0], this.elbowLeft[1]);
+			
+			line(this.elbowLeft[0], this.elbowLeft[1], this.handLeft[0], this.handLeft[1]);
+			
+			line(this.centerOfMass[0], this.centerOfMass[1], this.b[0], this.b[1]);
+			
+			line(this.b[0], this.b[1], this.kneeLeft[0], this.kneeLeft[1]);
+			
+			line(this.b[0], this.b[1], this.kneeRight[0], this.kneeRight[1]);
+			
+			line(this.kneeLeft[0], this.kneeLeft[1], this.legLeft[0], this.legLeft[1]);
+			
+			line(this.kneeRight[0], this.kneeRight[1], this.legRight[0], this.legRight[1]);
+			
+			stroke(0);
+			var i = 10;
+			strokeWeight(0);
+			
+			// draw centers 
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.centerOfMass[0], this.centerOfMass[1], print_r , print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("center of body | (" + this.centerOfMass[0] + ", " + this.centerOfMass[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.chest[0], this.chest[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("chest | (" + this.chest[0] + ", " + this.chest[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.head[0], this.head[1], print_r * 1.2, print_r * 1.2);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("head | (" + this.head[0] + ", " + this.head[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.sholderLeft[0], this.sholderLeft[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("sholderLeft | (" + this.sholderLeft[0] + ", " + this.sholderLeft[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.sholderRight[0], this.sholderRight[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("sholderRight | (" + this.sholderRight[0] + ", " + this.sholderRight[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.elbowLeft[0], this.elbowLeft[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("elbowLeft | (" + this.elbowLeft[0] + ", " + this.elbowLeft[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.elbowRight[0], this.elbowRight[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("elbowRight | (" + this.elbowRight[0] + ", " + this.elbowRight[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.handLeft[0], this.handLeft[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("handLeft | (" + this.handLeft[0] + ", " + this.handLeft[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.handRight[0], this.handRight[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("handRight | (" + this.handRight[0] + ", " + this.handRight[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.b[0], this.b[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("bottom | (" + this.b[0] + ", " + this.b[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.kneeLeft[0], this.kneeLeft[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("kneeLeft | (" + this.kneeLeft[0] + ", " + this.kneeLeft[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.kneeRight[0], this.kneeRight[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("kneeRight | (" + this.kneeRight[0] + ", " + this.kneeRight[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.legLeft[0], this.legLeft[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("legLeft | (" + this.legLeft[0] + ", " + this.legLeft[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+			
+			fill(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255)));
+			ellipse(this.legRight[0], this.legRight[1], print_r, print_r);
+			ellipse(20, i, print_r, print_r);
+			fill(0);
+			text("legRight | (" + this.legRight[0] + ", " + this.legRight[1] + ")", 20 + print_r, i + 3);
+			i = i + 20;
+		}
+	}
+	
+	function DotInFixDistance(d, minAlpha, maxAlpha)
+	{
+		alphaRadian = Math.floor(random(maxAlpha - minAlpha) + minAlpha) * Math.PI / 180;
+		x2 = Math.floor(Math.sin(alphaRadian) * d);
+		y2 = Math.floor(Math.cos(alphaRadian) * d);
+		return [x2, y2];
+	}
+	
+	function setup()
+	{
+		let cnv = createCanvas(400, 400); // create canvas to draw on
+		cnv.parent('canvas_container'); // set the location of the canvas in the right div
+		stroke(255); // Set line drawing color to white
+		background(255); // set BG to white
+		frameRate(24);
+	}
+	
+	function draw()
+	{
+		draw_shape();
+		frameRate(0.5); // draw once in 2 seconds
+	}
+	
+	function draw_shape()
+	{
+		background(255); // set BG to black
+		pose = new Pose();
+		pose.display();
+	}
+	
+	function downloadTrainSet()
+	{
+		noLoop();
+		for (var i = 0; i < 250; i++)
+		{
+			draw_shape();
+			saveCanvas('train_image_' + i.toString(), 'png');
+		}
+		alert("Finished download train set");
+		Loop();
+	}
+	
+	function downloadTestSet()
+	{
+		noLoop();
+		for (var i = 0; i < 25; i++)
+		{	
+			draw_shape();
+			saveCanvas('test_image_' + i.toString(), 'png');		
+		}
+		alert("Finished download test set");
+		Loop();
+	}
+	
+	function downloadasTextFile(filename, text) {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		element.setAttribute('download', filename);
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+
+		element.click();
+
+		document.body.removeChild(element);
+	}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js">
+</script>
+<script crossorigin="anonymous" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" src="https://code.jquery.com/jquery-3.5.1.slim.min.js">
+</script>
+<script crossorigin="anonymous" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js">
+</script>
+<script crossorigin="anonymous" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js">
+</script>
+<script src="/js/main.js">
+</script>

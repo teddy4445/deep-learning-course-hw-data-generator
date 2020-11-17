@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   Deep Learning KNN Dataset - Teddy Lazebnik
+  </title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="A 2d and 3d dataset of KNN and Kmeans algorithms" name="description"/>
+  <meta content="Teddy Lazebnik" name="author"/>
+  <meta content="keywords" content="lazebnik, לזנבניק, teddy lazebnik" />
+  <link href="/img/favicon.ico" rel="icon" type="image/x-icon"/>
+  <!-- css -->
+  <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" rel="stylesheet"/>
+  <link href="/css/teddy_style.css" rel="stylesheet"/>
+  <script type="application/ld+json">
+   {
+		  "@context": "https://schema.org",
+		  "@type": "Course",
+		  "name": "Deep Learning for Computer Vision",
+		  "description": "An introduction to deep learning, focusing on computer vision tasks",
+		  "provider": {
+			"@type": "Organization",
+			"name": "HIT"
+		  }
+		}
+  </script>
+  <!-- P5 library -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.js">
+  </script>
+ </head>
+ <body>
+  <div class="row">
+   <div class="col-lg-12 col-md-12 col-sm-12 mobile-space">
+    <div class="body">
+     <div class="fluid-container">
+      <div class="row" style="text-align: center">
+       <div class="col-lg-12 col-md-12 col-sm-12">
+         <h3>
+          Dataset for Knn and Xnn algorithm
+         </h3>
+         <p>
+          The image shows the set. Click the button to download it. Each page refresh will provide a slightly different set.
+         </p>
+         <button alt="Download Train Set" class="btn btn-primary" id="download_btn" onclick="downloadData();" style="margin-bottom: 20px;">
+          Download DataSet (2d) case
+         </button>
+         <div id="canvas_container">
+         </div>
+         <p>
+          <b>
+           Note:
+          </b>
+          click on the image to redraw another set
+          <p>
+           <br/>
+           <a alt="2 dim case" class="btn btn-info" href="deep_leanring_knn_sample.html?dim=2" style="margin-top: 10px;" title="Show 2d Case">
+            Show 2d Case
+           </a>
+           <a alt="3 dim case" class="btn btn-info" href="deep_leanring_knn_sample.html?dim=3" style="margin-top: 10px;" title="Show 3d Case">
+            Show 3d Case
+           </a>
+          </p>
+         </p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>
+<!-- random function to learn sample -->
+<script>
+ let printType = new URLSearchParams(window.location.search).get('dim');
+	
+	let centers_2d = [[10, 10], [75, 0], [-50, 50], [-10 ,-10], [0, 75]];
+	let spreds_2d = [30, 200, 100, 30, 200];
+	let centers_3d = [[10, 10, 10], [100, 0, 100], [-50, 50, -50], [-10 ,-10 ,-10 ], [0, 100, 0]];
+	let spreds_3d = [30, 200, 100, 30, 200];
+	
+	let data = [];
+	
+	if (printType == "3")
+	{
+		document.getElementById("download_btn").innerHTML = "Download DataSet (3d) case";
+		function setup()
+		{
+			let cnv = createCanvas(400, 400, WEBGL); // create canvas to draw on
+			cnv.parent('canvas_container'); // set the location of the canvas in the right div
+			cnv.mouseClicked(redraw); // attach listener for
+			stroke(255); // Set line drawing color to white
+			frameRate(2);
+			background(250); // set BG to black
+		}
+		
+		function draw()
+		{
+			background(250); // set BG to black-ish to remove last print
+			rectMode(CENTER);
+			angleMode(DEGREES);
+			noStroke();
+			translate(-50, -50, 0);
+			// run over all centers and make clouds next to them
+			for (var centerIndex = 0; centerIndex < centers_3d.length; centerIndex++)
+			{
+				var cluster_color = color(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255))); // pick random color to this set
+				// generate random number of points to each cluster
+				for (var i = 0; i < 40 + Math.floor(random(100)); i++) 
+				{
+					push(); // print logic to this point only
+					fill(cluster_color); // make the color
+					var new_location = [Math.floor(centers_3d[centerIndex][0] - (spreds_3d[centerIndex]/2) + random(spreds_3d[centerIndex])),
+								Math.floor(centers_3d[centerIndex][1] - (spreds_3d[centerIndex]/2) + random(spreds_3d[centerIndex])), 
+								Math.floor(centers_3d[centerIndex][2] - (spreds_3d[centerIndex]/2) + random(spreds_3d[centerIndex]))];
+					data.push([new_location, centerIndex]); // remember for later to download logic
+					translate(new_location[0], new_location[1], new_location[2]); // move the dot to the right place
+					sphere(2); // print the dot
+					pop(); // finish this dot's print logic
+				}
+			}
+			noLoop(); // stop the rendering
+		}
+	}
+	else
+	{
+		function setup()
+		{
+			let cnv = createCanvas(400, 400); // create canvas to draw on
+			cnv.parent('canvas_container'); // set the location of the canvas in the right div
+			cnv.mouseClicked(redraw); // attach listener for
+			stroke(255); // Set line drawing color to white
+			frameRate(2);
+			background(250); // set BG to black
+		}
+		
+		function draw()
+		{
+			background(250); // set BG to black-ish to remove last print
+			rectMode(CENTER);
+			angleMode(DEGREES);
+			noStroke();
+			// run over all centers and make clouds next to them
+			for (var centerIndex = 0; centerIndex < centers_3d.length; centerIndex++)
+			{
+				var cluster_color = color(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255))); // pick random color to this set
+				// generate random number of points to each cluster
+				for (var i = 0; i < 20 + Math.floor(random(100)); i++) 
+				{
+					fill(cluster_color); // make the color
+					var new_location = [150 + Math.floor(centers_2d[centerIndex][0] - (spreds_2d[centerIndex]/2) + random(spreds_2d[centerIndex])),
+										150 + Math.floor(centers_2d[centerIndex][1] - (spreds_2d[centerIndex]/2) + random(spreds_2d[centerIndex]))];
+					data.push([new_location, centerIndex]); // remember for later to download logic
+					ellipse(new_location[0], new_location[1], 4, 4); // print the dot in the right place
+				}
+			}
+			noLoop(); // stop the rendering
+		}
+	}
+	
+	
+	
+	function downloadData()
+	{
+		let stringData = "";
+		for (var i = 0; i < data.length; i++)
+		{
+			stringData += data[i][0].toString() + "|" + data[i][1].toString() + "\n";
+		}
+		downloadasTextFile("train_data_tags.txt", stringData);
+		alert("Finished download dataset");
+	}
+	
+	function downloadasTextFile(filename, text) {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		element.setAttribute('download', filename);
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+
+		element.click();
+
+		document.body.removeChild(element);
+	}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js">
+</script>
+<script crossorigin="anonymous" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" src="https://code.jquery.com/jquery-3.5.1.slim.min.js">
+</script>
+<script crossorigin="anonymous" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js">
+</script>
+<script crossorigin="anonymous" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js">
+</script>
+<script src="/js/main.js">
+</script>
